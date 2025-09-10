@@ -1,2 +1,2 @@
 # Chetwynd-Public-Library-App
-Chetwynd Public Lbrary App
+Chetwynd Public Library App
