@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Include the shared preferences file used for storing library cards -->
+    <include domain="sharedpref" path="CPL_CARDS.xml"/>
+</full-backup-content>

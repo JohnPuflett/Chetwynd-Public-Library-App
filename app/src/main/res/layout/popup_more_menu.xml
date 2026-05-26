@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE LinearLayout [
+    <!ENTITY myTextSize "24sp">
+    <!ENTITY myLineSpacing "0.70">
+    ]>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="340dp"
+    android:background="@drawable/popup_menu_background"
+    android:elevation="8dp"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+
+
+    <TextView
+        android:id="@+id/menu_guide"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="Current Program Guide"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="&myTextSize;"
+        android:lineSpacingMultiplier="&myLineSpacing;"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/menu_children"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="Children's Programs"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="&myTextSize;"
+        android:lineSpacingMultiplier="&myLineSpacing;"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/menu_family"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="Family Events"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="&myTextSize;"
+        android:lineSpacingMultiplier="&myLineSpacing;"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/menu_teen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="Teen Events"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="&myTextSize;"
+        android:lineSpacingMultiplier="&myLineSpacing;"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/menu_pre_teen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="Pre-Teen Events"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="&myTextSize;"
+        android:lineSpacingMultiplier="&myLineSpacing;"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/menu_creative"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="Creative Journeys"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="&myTextSize;"
+        android:lineSpacingMultiplier="&myLineSpacing;"
+        android:padding="12dp" />
+
+    <TextView
+        android:id="@+id/menu_stem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="STEM Programs"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="&myTextSize;"
+        android:lineSpacingMultiplier="&myLineSpacing;"
+        android:padding="12dp" />
+</LinearLayout>

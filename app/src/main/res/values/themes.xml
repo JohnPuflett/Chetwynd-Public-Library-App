@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.ChetwyndPublicLibraryMobileApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">#121212</item>
+
+        <item name="colorSurface">#121212</item>
+    </style>
+
+    <style name="Theme.ChetwyndPublicLibraryMobileApp" parent="Base.Theme.ChetwyndPublicLibraryMobileApp" />
+
+    <style name="BottomNavLabelStyle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:lines">2</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:lineSpacingMultiplier">0.6</item>
+    </style>
+</resources>

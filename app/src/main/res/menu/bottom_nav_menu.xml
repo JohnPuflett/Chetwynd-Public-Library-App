@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search\nLibrary" />
+    <item
+        android:id="@+id/nav_cards"
+        android:icon="@drawable/ic_card"
+        android:title="Library\nCards" />
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+    <item
+        android:id="@+id/nav_web"
+        android:icon="@drawable/ic_web"
+        android:title="CPL\nWebsite" />
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@android:drawable/ic_menu_more"
+        android:title="More" />
+</menu>
