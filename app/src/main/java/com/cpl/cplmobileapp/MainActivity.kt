@@ -1,6 +1,7 @@
 package com.cpl.cplmobileapp
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -8,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -21,6 +23,8 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -68,6 +72,22 @@ class MainActivity : AppCompatActivity() {
 
     // Unique IDs for custom dynamically injected menu items
     private val ID_NAV_GUIDE = 1001
+
+    // --- File Upload State & System Picker Launcher ---
+    private var pendingFilePathCallback: ValueCallback<Array<Uri>>? = null
+
+    private val filePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            val uri = data?.data
+            pendingFilePathCallback?.onReceiveValue(if (uri != null) arrayOf(uri) else null)
+        } else {
+            pendingFilePathCallback?.onReceiveValue(null)
+        }
+        pendingFilePathCallback = null
+    }
 
     // --- Permissions ---
     private val requestPermissionLauncher =
@@ -229,6 +249,14 @@ class MainActivity : AppCompatActivity() {
         }
         popupWindow.isClippingEnabled = false
 
+        // Online Store
+        popupView.findViewById<TextView>(R.id.menu_store).setOnClickListener {
+            popupWindow.dismiss()
+            showLoadingState()
+            webView.loadUrl("https://chetwynd-public-library.square.site/")
+        }
+
+        // Program Guide
         popupView.findViewById<TextView>(R.id.menu_guide).setOnClickListener {
             popupWindow.dismiss()
             startActivity(Intent(this, PdfViewerActivity::class.java))
@@ -249,6 +277,13 @@ class MainActivity : AppCompatActivity() {
                 showLoadingState()
                 webView.loadUrl("$rootUrl/$path")
             }
+        }
+
+        // Upload Print Job Item at the bottom
+        popupView.findViewById<TextView>(R.id.menu_print_job).setOnClickListener {
+            popupWindow.dismiss()
+            showLoadingState()
+            webView.loadUrl("https://www.chetwyndeventscalendar.com/printing")
         }
 
         popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
@@ -300,6 +335,7 @@ class MainActivity : AppCompatActivity() {
             useWideViewPort = true
             loadWithOverviewMode = true
             domStorageEnabled = true
+            allowFileAccess = true // Necessary for local file system selection mechanisms
         }
 
         webView.addJavascriptInterface(object {
@@ -312,6 +348,24 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread { isFormVisible = true }
             }
         }, "FormDetector")
+
+        // Intercept WebChrome events to attach native Android system interactions
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(
+                webView: WebView,
+                filePathCallback: ValueCallback<Array<Uri>>,
+                fileChooserParams: FileChooserParams
+            ): Boolean {
+                val intent = fileChooserParams.createIntent()
+                try {
+                    filePickerLauncher.launch(intent)
+                    pendingFilePathCallback = filePathCallback
+                } catch (e: Exception) {
+                    return false
+                }
+                return true
+            }
+        }
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
