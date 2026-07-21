@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "com.cpl.cplmobileapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.CPL.CPLMobileApp"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 18
-        versionName = "2.0.0"
+        targetSdk = 36
+        versionCode = 20
+        versionName = "2.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
