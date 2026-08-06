@@ -7,12 +7,12 @@
   "moreMenuItems": [
     {
       "_comment": "Online Store is not ready",
-      "title": "Online Store",
+      "_title": "Online Store",
       "url": "https://chetwynd-public-library.square.site/"
     },
     {
       "_comment": "Between Seasons",
-      "title": "Program Guide",
+      "_title": "Program Guide",
       "url": "pdf_viewer"
     },
     {
@@ -21,26 +21,32 @@
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplchildrensprograms"
     },
     {
+      "_comment": "Still Active",
       "title": "Family Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplfamilyevents"
     },
     {
+      "_comment": "Still Active",
       "title": "Teen Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplteenevents"
     },
     {
+      "_comment": "Still Active",
       "title": "Pre-Teen Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplpreteenevents"
     },
     {
+      "_comment": "Still Active",
       "title": "Creative Journeys",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplcreativejourneys"
     },
     {
-      "title": "STEM Programs",
+      "_comment": "Between Seasons",
+      "_title": "STEM Programs",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplstemprograms"
     },
     {
+      "_comment": "Still Active",
       "title": "Print Job Upload",
       "url": "https://www.chetwyndeventscalendar.com/printing"
     }
