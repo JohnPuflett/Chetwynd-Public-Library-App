@@ -1,9 +1,45 @@
 {
   "headerBgColor": "#1B365D",
   "navBgColor": "#1B365D",
-  "headerImageUrl": "",
-  "navImageUrl": "",
-  "latestVersionCode": 21,
+  "latestVersionCode": 18,
   "forceUpdate": false,
-  "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp"
+  "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
+  "moreMenuItems": [
+    {
+      "title": "Online Store",
+      "url": "https://chetwynd-public-library.square.site/"
+    },
+    {
+      "title": "Program Guide",
+      "url": "pdf_viewer"
+    },
+    {
+      "title": "Children's Programs",
+      "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplchildrensprograms"
+    },
+    {
+      "title": "Family Events",
+      "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplfamilyevents"
+    },
+    {
+      "title": "Teen Events",
+      "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplteenevents"
+    },
+    {
+      "title": "Pre-Teen Events",
+      "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplpreteenevents"
+    },
+    {
+      "title": "Creative Journeys",
+      "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplcreativejourneys"
+    },
+    {
+      "title": "STEM Programs",
+      "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplstemprograms"
+    },
+    {
+      "title": "Print Job Upload",
+      "url": "https://www.chetwyndeventscalendar.com/printing"
+    }
+  ]
 }
