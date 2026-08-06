@@ -6,6 +6,7 @@
   "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
   "moreMenuItems": [
     {
+      "_comment": "Online Store is not ready",
       "title": "Online Store",
       "url": "https://chetwynd-public-library.square.site/"
     },
