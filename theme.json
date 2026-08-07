@@ -22,7 +22,7 @@
   ],
   
 "announcementModal": {
-    "enabled": false,
+    "enabled": true,
     "id": "summer_reading_2026",
     "title": "Summer Reading Club!",
     "message": "Join us this week for hands-on STEM workshops.",
