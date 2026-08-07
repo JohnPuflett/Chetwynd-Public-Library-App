@@ -6,7 +6,7 @@
   "latestVersionCode": 19,
   "forceUpdate": false,
   "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
-  "headerText": "Your Chetwynd Public Library",
+  "headerText": "Chetwynd Public Library",
   "logoCplWebUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/header/logo_cpl.png",
   "logoEventsUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/header/logo_events.png",
   "logoCplWebLink": "https://chetwynd.bc.libraries.coop/",
