@@ -17,12 +17,15 @@
     "forms.microsoft.com",
     "forms.cloud.microsoft"
   ],
+  
   "announcementModal": {
     "enabled": true,
     "id": "summer_reading_2026Week4",
     "title": "Summer Reading Club!",
-    "message": "This week's theme is...": "Got It"
+    "message": "This week's theme is..."
+    "dismissButtonText": "Got It"
   }
+  
   "moreMenuItems": [
     {
       "_comment": "Online Store is not ready",
