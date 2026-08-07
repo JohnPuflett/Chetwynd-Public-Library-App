@@ -4,14 +4,17 @@
   "navBgColor": "#1B365D",
   "headerImageUrl": "",
   "navImageUrl": "",
+  
   "latestVersionCode": 19,
   "forceUpdate": false,
   "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
+  
   "headerText": "Chetwynd Public Library",
   "logoCplWebUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/header/logo_cpl.png",
   "logoEventsUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/header/logo_events.png",
   "logoCplWebLink": "https://chetwynd.bc.libraries.coop/",
   "logoEventsLink": "https://www.chetwyndeventscalendar.com/",
+  
   "formDetectionDomains": [
     "forms.office.com",
     "forms.microsoft.com",
