@@ -6,6 +6,11 @@
   "latestVersionCode": 19,
   "forceUpdate": false,
   "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
+  "formDetectionDomains": [
+    "forms.office.com",
+    "forms.microsoft.com",
+    "forms.cloud.microsoft"
+  ],
   "moreMenuItems": [
     {
       "_comment": "Online Store is not ready",
