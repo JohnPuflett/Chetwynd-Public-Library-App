@@ -6,8 +6,12 @@
   "navImageUrl": "",
   
   "latestVersionCode": 19,
-  "forceUpdate": false,
   "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
+
+  "latestVersionCodeiOS": 12,
+  "updateUrliOS": "https://apps.apple.com/ca/app/chetwynd-public-library/id6740924976",
+
+  "forceUpdate": false,
   
   "headerText": "Chetwynd Public Library",
   "logoCplWebUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/header/logo_cpl.png",
