@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 1. Fullscreen Background Graphic -->
+    <item>
+        <bitmap
+            android:src="@drawable/splash_bg"
+            android:gravity="fill" />
+    </item>
+
+    <!-- 2. Centered Library Logo -->
+    <item
+        android:width="180dp"
+        android:height="180dp"
+        android:gravity="center">
+        <bitmap
+            android:src="@drawable/ic_cpl_logo"
+            android:gravity="center" />
+    </item>
+
+</layer-list>

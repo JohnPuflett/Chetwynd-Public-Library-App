@@ -24,4 +24,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Chetwynd Public Library Mobile App"
 include(":app")
- 

@@ -1,8 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.ChetwyndPublicLibraryMobileApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">#121212</item>
+        <!-- Replaced solid dark background with splash screen layer-list drawable -->
+        <item name="android:windowBackground">@drawable/splash_background</item>
 
+        <!-- Keep dark surface color for material dialogs/sheets -->
         <item name="colorSurface">#121212</item>
+
+        <!-- Blends system status bar over full-screen splash graphic -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.ChetwyndPublicLibraryMobileApp" parent="Base.Theme.ChetwyndPublicLibraryMobileApp" />

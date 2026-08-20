@@ -1,12 +1,20 @@
 package com.cpl.cplmobileapp
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.PointF
 import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.util.Log
+import android.view.GestureDetector
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -35,42 +43,31 @@ class PdfViewerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Force status bar background control
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-
-        // 2. Set status bar background color to match your dark layout surface (#121212)
         window.statusBarColor = android.graphics.Color.parseColor("#121212")
 
-        // 3. Use Jetpack WindowCompat to force system icons (Clock, Battery) to stay light/white
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController?.let {
-            it.isAppearanceLightStatusBars = false
-        }
+        windowInsetsController?.isAppearanceLightStatusBars = false
 
         setContentView(R.layout.activity_pdf_viewer)
 
-        // Initialize view bindings
         viewPager = findViewById(R.id.pdf_view_pager)
         pageIndicator = findViewById(R.id.txt_page_indicator)
         progressBar = findViewById(R.id.pdf_progress)
 
-        // FIX: Dynamically apply padding so layout contents never clip behind system bars
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Apply the system bar sizes as padding to the root content view box
             findViewById<View>(android.R.id.content).setPadding(
                 systemBars.left,
-                systemBars.top,     // Pushes close button cleanly below the clock/status bar
+                systemBars.top,
                 systemBars.right,
-                systemBars.bottom   // Pushes nav buttons cleanly above the Android back/home keys
+                systemBars.bottom
             )
             WindowInsetsCompat.CONSUMED
         }
 
-        // Header Close Button
         findViewById<TextView>(R.id.btn_back).setOnClickListener { finish() }
 
-        // Footer Navigation Arrow Click Listeners
         findViewById<TextView>(R.id.btn_pdf_prev).setOnClickListener {
             val currentItem = viewPager.currentItem
             if (currentItem > 0) {
@@ -86,22 +83,19 @@ class PdfViewerActivity : AppCompatActivity() {
             }
         }
 
-        // Apply 3D page rotation transformation layers
-        viewPager.setPageTransformer(BookFlipPageTransformer())
+        // Clean Material Depth transition
+        viewPager.setPageTransformer(DepthPageTransformer())
 
-        // Launch the localized caching & engine manager
         loadAndCachePdf("https://chetwynd.bc.libraries.coop/files/2026/05/Program-Guide_merged.pdf")
     }
 
     private fun loadAndCachePdf(urlString: String) {
         cachedPdfFile = File(filesDir, "cached_program_guide.pdf")
 
-        // 1. IMMEDIATE LOCAL LOAD: If the file exists, initialize it instantly
         if (cachedPdfFile?.exists() == true) {
             initializePdfRenderer(cachedPdfFile!!)
         }
 
-        // 2. BACKGROUND SYNC: Quietly fetch network copy to verify/update file
         thread {
             try {
                 val url = URL(urlString)
@@ -130,7 +124,7 @@ class PdfViewerActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("PDF_VIEWER", "Download failed", e)
                 runOnUiThread {
                     if (pdfRenderer == null) {
                         progressBar.visibility = View.GONE
@@ -162,17 +156,11 @@ class PdfViewerActivity : AppCompatActivity() {
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
                         pageIndicator.text = "Page ${position + 1} of ${renderer.pageCount}"
-
-                        val recyclerView = viewPager.getChildAt(0) as? RecyclerView
-                        recyclerView?.let { rv ->
-                            (rv.findViewHolderForAdapterPosition(position - 1) as? PdfPageAdapter.PageViewHolder)?.imgSurface?.resetZoom()
-                            (rv.findViewHolderForAdapterPosition(position + 1) as? PdfPageAdapter.PageViewHolder)?.imgSurface?.resetZoom()
-                        }
                     }
                 })
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("PDF_VIEWER", "PdfRenderer init error", e)
         }
     }
 
@@ -181,19 +169,18 @@ class PdfViewerActivity : AppCompatActivity() {
             pdfRenderer?.close()
             fileDescriptor?.close()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("PDF_VIEWER", "Cleanup error", e)
         }
         super.onDestroy()
     }
 
-    // --- High Performance Background Core Page Renderer Adapter ---
     class PdfPageAdapter(
         private val renderer: PdfRenderer,
         private val viewPager: ViewPager2
     ) : RecyclerView.Adapter<PdfPageAdapter.PageViewHolder>() {
 
         class PageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val imgSurface: ZoomableImageView = view.findViewById(R.id.img_page_surface)
+            val imgSurface: ImageView = view.findViewById(R.id.img_page_surface)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
@@ -201,45 +188,142 @@ class PdfViewerActivity : AppCompatActivity() {
             return PageViewHolder(view)
         }
 
+        @SuppressLint("ClickableViewAccessibility")
         override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
-            holder.imgSurface.resetZoom()
-            holder.imgSurface.parentViewPager = viewPager
+            val imageView = holder.imgSurface
+            imageView.scaleType = ImageView.ScaleType.FIT_CENTER
 
-            val page = renderer.openPage(position)
+            val matrix = Matrix()
+            var currentScale = 1f
+            val maxScale = 4.0f
+            val minScale = 1.0f
+            val lastTouch = PointF()
 
-            val targetWidth = page.width * 3
-            val targetHeight = page.height * 3
+            val scaleDetector = ScaleGestureDetector(imageView.context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                    if (imageView.scaleType != ImageView.ScaleType.MATRIX) {
+                        imageView.scaleType = ImageView.ScaleType.MATRIX
+                        matrix.set(imageView.imageMatrix)
+                    }
+                    // Immediately lock ViewPager swipe so pinching is never interrupted
+                    viewPager.isUserInputEnabled = false
+                    return true
+                }
 
-            val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    val scaleFactor = detector.scaleFactor
+                    val targetScale = currentScale * scaleFactor
 
-            holder.imgSurface.setImageBitmap(bitmap)
-            page.close()
+                    if (targetScale in minScale..maxScale) {
+                        currentScale = targetScale
+                        matrix.postScale(scaleFactor, scaleFactor, detector.focusX, detector.focusY)
+                        imageView.imageMatrix = matrix
+                    }
+                    return true
+                }
+            })
+
+            val gestureDetector = GestureDetector(imageView.context, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    if (currentScale > 1.05f) {
+                        currentScale = 1f
+                        matrix.reset()
+                        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+                        viewPager.isUserInputEnabled = true
+                    } else {
+                        currentScale = 2.5f
+                        imageView.scaleType = ImageView.ScaleType.MATRIX
+                        matrix.set(imageView.imageMatrix)
+                        matrix.postScale(2.5f, 2.5f, e.x, e.y)
+                        imageView.imageMatrix = matrix
+                        viewPager.isUserInputEnabled = false
+                    }
+                    return true
+                }
+            })
+
+            imageView.setOnTouchListener { _, event ->
+                // Disallow ViewPager touch interception immediately when two fingers touch down
+                if (event.pointerCount >= 2) {
+                    viewPager.isUserInputEnabled = false
+                    imageView.parent?.requestDisallowInterceptTouchEvent(true)
+                }
+
+                scaleDetector.onTouchEvent(event)
+                gestureDetector.onTouchEvent(event)
+
+                val curr = PointF(event.x, event.y)
+
+                when (event.action and MotionEvent.ACTION_MASK) {
+                    MotionEvent.ACTION_DOWN -> {
+                        lastTouch.set(curr)
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        if (currentScale > 1.05f && !scaleDetector.isInProgress) {
+                            val deltaX = curr.x - lastTouch.x
+                            val deltaY = curr.y - lastTouch.y
+                            matrix.postTranslate(deltaX, deltaY)
+                            imageView.imageMatrix = matrix
+                            lastTouch.set(curr.x, curr.y)
+                        }
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                        if (event.pointerCount <= 1 && currentScale <= 1.05f) {
+                            currentScale = 1f
+                            matrix.reset()
+                            imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+                            viewPager.isUserInputEnabled = true
+                        }
+                    }
+                }
+                true
+            }
+
+            synchronized(renderer) {
+                try {
+                    val page = renderer.openPage(position)
+
+                    val displayMetrics = holder.itemView.resources.displayMetrics
+                    val targetWidth = displayMetrics.widthPixels * 2
+                    val aspectRatio = page.height.toFloat() / page.width.toFloat()
+                    val targetHeight = (targetWidth * aspectRatio).toInt()
+
+                    val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
+                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+
+                    imageView.setImageBitmap(bitmap)
+                    page.close()
+                } catch (e: Exception) {
+                    Log.e("PDF_ADAPTER", "Error rendering page $position", e)
+                }
+            }
         }
 
         override fun getItemCount(): Int = renderer.pageCount
     }
 
-    // --- Custom Hardware-Accelerated 3D Book Flip Animation Transformer ---
-    class BookFlipPageTransformer : ViewPager2.PageTransformer {
+    class DepthPageTransformer : ViewPager2.PageTransformer {
+        private val minScale = 0.85f
+
         override fun transformPage(page: View, position: Float) {
+            val pageWidth = page.width
+
             when {
                 position < -1 -> {
                     page.alpha = 0f
                 }
                 position <= 0 -> {
                     page.alpha = 1f
-                    page.translationX = -position * page.width
-                    page.rotationY = 180f * position
-                    page.pivotX = 0f
-                    page.pivotY = page.height / 2f
+                    page.translationX = 0f
+                    page.scaleX = 1f
+                    page.scaleY = 1f
                 }
                 position <= 1 -> {
-                    page.alpha = 1f
-                    page.translationX = 0f
-                    page.rotationY = 0f
-                    page.pivotX = 0f
-                    page.pivotY = page.height / 2f
+                    page.alpha = 1f - position
+                    page.translationX = pageWidth * -position
+                    val scaleFactor = minScale + (1 - minScale) * (1 - Math.abs(position))
+                    page.scaleX = scaleFactor
+                    page.scaleY = scaleFactor
                 }
                 else -> {
                     page.alpha = 0f

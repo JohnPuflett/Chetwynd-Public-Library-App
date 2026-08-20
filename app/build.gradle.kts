@@ -12,15 +12,15 @@ android {
         applicationId = "com.CPL.CPLMobileApp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 20
-        versionName = "2.0.2"
+        versionCode = 19
+        versionName = "2.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         getByName("debug") {
-            isMinifyEnabled = true // <-- Turn this on to test your ProGuard rules over USB
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -54,7 +54,6 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
-
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-inappmessaging-display")
@@ -64,12 +63,9 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-// For the Navigation Bar and Material components
     implementation("com.google.android.material:material:1.11.0")
-
-    // For saving/loading the list of cards
     implementation("com.google.code.gson:gson:2.10.1")
-
-    // For generating the barcodes
     implementation("com.google.zxing:core:3.5.3")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.androidx.core.splashscreen)
 }
