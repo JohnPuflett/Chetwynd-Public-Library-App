@@ -1,7 +1,7 @@
 {
     "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
-    "headerBgColor_draft": "#F9A978",
-    "navBgColor_draft": "#EF8137"
+    "headerBgColor": "#F9A978",
+    "navBgColor": "#EF8137"
     "headerImageUrl": "",
     "navImageUrl": "",
 
