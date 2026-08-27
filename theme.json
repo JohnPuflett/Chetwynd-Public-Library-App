@@ -1,32 +1,32 @@
 {
+  "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
+  "headerBgColor": "#F9A978",
+  "navBgColor": "#EF8137",
+  "headerImageUrl": "",
+  "navImageUrl": "",
+
+  "_SRC Wrap Up Party - Aug 28": {
+    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
+    "headerBgColor": "#5FC5CA",
+    "navBgColor": "#1B365D",
+    "headerImageUrl": "",
+    "navImageUrl": ""
+  },
+  "_Creative Journeys - Sept 1": {
     "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
     "headerBgColor": "#F9A978",
     "navBgColor": "#EF8137",
     "headerImageUrl": "",
-    "navImageUrl": "",
+    "navImageUrl": ""
+  },
+  "_Fall Programs - Sept 4": {
+    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
+    "headerBgColor": "#F9A978",
+    "navBgColor": "#F37E48",
+    "headerImageUrl": "",
+    "navImageUrl": ""
+  },
 
-    "_SRC Wrap Up Party - Aug 28": {
-        "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818 splash_bg - SRC WrapUp.png",
-        "headerBgColor": "#5FC5CA",
-        "navBgColor": "#1B365D",
-        "headerImageUrl": "",
-        "navImageUrl": ""
-      },
-    "_Creative Journeys - Sept 1": {
-        "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
-        "headerBgColor": "#F9A978",
-        "navBgColor": "#EF8137",
-        "headerImageUrl": "",
-        "navImageUrl": ""
-      },
-    "_Fall Programs - Sept 4": {
-        "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818 splash_bg - SRC WrapUp.png",
-        "headerBgColor": "#F9A978",
-        "navBgColor": "#F37E48",
-        "headerImageUrl": "",
-        "navImageUrl": ""
-      },
-    
   "latestVersionCode": 19,
   "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
 
@@ -34,27 +34,27 @@
   "updateUrliOS": "https://apps.apple.com/ca/app/chetwynd-public-library-app/id6767062651",
 
   "forceUpdate": false,
-  
+
   "headerText": "Chetwynd Public Library",
   "logoCplWebUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/header/CPL_Logo_with_shadow.png",
   "logoEventsUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/header/EventsCalendar_Logo_with_shadow.png",
   "logoCplWebLink": "https://chetwynd.bc.libraries.coop/",
   "logoEventsLink": "https://www.chetwyndeventscalendar.com/",
-  
+
   "formDetectionDomains": [
     "forms.office.com",
     "forms.microsoft.com",
     "forms.cloud.microsoft"
   ],
-  
-"announcementModal": {
+
+  "announcementModal": {
     "enabled": true,
     "id": "summer_reading_2026Week7",
     "title": "Summer Reading Club!",
     "message": "Welcome to Week 7 of Summer Reading Club. This week's theme is Open Ocean - Adventure Awaits! Don't forget to join us for the wrap-up party on Friday @ 11am!",
     "dismissButtonText": "Got It"
   },
-  
+
   "moreMenuItems": [
     {
       "_comment": "Online Store is not ready",
