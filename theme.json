@@ -1,31 +1,42 @@
 {
-    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
-    "headerBgColor": "#5FC5CA",
-    "navBgColor": "#1B365D",
-    "headerImageUrl": "",
-    "navImageUrl": "",
+  "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
+  "headerBgColor": "#5FC5CA",
+  "navBgColor": "#1B365D",
+  "headerImageUrl": "",
+  "navImageUrl": "",
 
-  "_SRC Wrap Up Party - Aug 28": {
-    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
-    "headerBgColor": "#5FC5CA",
-    "navBgColor": "#1B365D",
-    "headerImageUrl": "",
-    "navImageUrl": ""
-  },
-  "_Creative Journeys - Sept 1": {
-    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
-    "headerBgColor": "#F9A978",
-    "navBgColor": "#EF8137",
-    "headerImageUrl": "",
-    "navImageUrl": ""
-  },
-  "_Fall Programs - Sept 4": {
-    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
-    "headerBgColor": "#F9A978",
-    "navBgColor": "#F37E48",
-    "headerImageUrl": "",
-    "navImageUrl": ""
-  },
+  "scheduledThemes": [
+    {
+      "name": "SRC Wrap Up Party",
+      "startDate": "2026-08-18",
+      "endDate": "2026-08-31",
+      "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
+      "headerBgColor": "#5FC5CA",
+      "navBgColor": "#1B365D",
+      "headerImageUrl": "",
+      "navImageUrl": ""
+    },
+    {
+      "name": "Creative Journeys Launch",
+      "startDate": "2026-09-01",
+      "endDate": "2026-09-03",
+      "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
+      "headerBgColor": "#F9A978",
+      "navBgColor": "#EF8137",
+      "headerImageUrl": "",
+      "navImageUrl": ""
+    },
+    {
+      "name": "Fall Programs Start",
+      "startDate": "2026-09-04",
+      "endDate": "2026-09-30",
+      "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818%20splash_bg%20-%20SRC%20WrapUp.png",
+      "headerBgColor": "#F9A978",
+      "navBgColor": "#F37E48",
+      "headerImageUrl": "",
+      "navImageUrl": ""
+    }
+  ],
 
   "latestVersionCode": 19,
   "updateUrl": "https://play.google.com/store/apps/details?id=com.CPL.CPLMobileApp",
