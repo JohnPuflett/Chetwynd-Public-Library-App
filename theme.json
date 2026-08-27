@@ -1,7 +1,7 @@
 {
-  "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/splash_bg_DEFAULT.png",
-  "headerBgColor": "#DCBEFA",
-  "navBgColor": "#6D00A3",
+      "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818_splash_bg_SRCWrapUp.png",
+      "headerBgColor": "#5FC5CA",
+      "navBgColor": "#1B365D",
   "headerImageUrl": "",
   "navImageUrl": "",
 
