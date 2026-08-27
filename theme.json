@@ -1,14 +1,21 @@
 {
-  "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818 splash_bg - SRC WrapUp.png",
-  "headerBgColor": "#5FC5CA",
-  "navBgColor": "#1B365D",
-  "headerImageUrl": "",
-  "navImageUrl": "",
+    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
+    "headerBgColor_draft": "#F9A978",
+    "navBgColor_draft": "#EF8137"
+    "headerImageUrl": "",
+    "navImageUrl": "",
+
 
   "_Creative Journeys - Sept 1": {
     "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
     "headerBgColor_draft": "#F9A978",
     "navBgColor_draft": "#EF8137"
+    "headerImageUrl": "",
+    "navImageUrl": "",
+
+    "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818 splash_bg - SRC WrapUp.png",
+    "headerBgColor": "#5FC5CA",
+    "navBgColor": "#1B365D",
     "headerImageUrl": "",
     "navImageUrl": "",
   }
