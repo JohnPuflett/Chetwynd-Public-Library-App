@@ -1,7 +1,7 @@
 {
     "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
     "headerBgColor": "#F9A978",
-    "navBgColor": "#EF8137"
+    "navBgColor": "#EF8137",
     "headerImageUrl": "",
     "navImageUrl": "",
 
@@ -15,14 +15,14 @@
     "_Creative Journeys - Sept 1": {
         "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
         "headerBgColor": "#F9A978",
-        "navBgColor": "#EF8137"
+        "navBgColor": "#EF8137",
         "headerImageUrl": "",
         "navImageUrl": "",
       }
     "_Fall Programs - Sept 4": {
         "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818 splash_bg - SRC WrapUp.png",
         "headerBgColor": "#F9A978",
-        "navBgColor": "#F37E48"
+        "navBgColor": "#F37E48",
         "headerImageUrl": "",
         "navImageUrl": "",
       }
