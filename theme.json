@@ -8,8 +8,8 @@
 
   "_Creative Journeys - Sept 1": {
     "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260901_splash_bg_creativejourneys.png",
-    "headerBgColor_draft": "#F9A978",
-    "navBgColor_draft": "#EF8137"
+    "headerBgColor": "#F9A978",
+    "navBgColor": "#EF8137"
     "headerImageUrl": "",
     "navImageUrl": "",
 
@@ -21,8 +21,8 @@
   }
     "_Fall Programs - Sept 4": {
     "splashBgUrl": "https://raw.githubusercontent.com/JohnPuflett/Chetwynd-Public-Library-App/main/theme/20260818 splash_bg - SRC WrapUp.png",
-    "headerBgColor_draft": "#F9A978",
-    "navBgColor_draft": "#F37E48"
+    "headerBgColor": "#F9A978",
+    "navBgColor": "#F37E48"
     "headerImageUrl": "",
     "navImageUrl": "",
   }
