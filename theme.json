@@ -60,9 +60,9 @@
 
   "announcementModal": {
     "enabled": true,
-    "id": "summer_reading_2026Week7",
-    "title": "Summer Reading Club!",
-    "message": "Welcome to Week 7 of Summer Reading Club. This week's theme is Open Ocean - Adventure Awaits! Don't forget to join us for the wrap-up party on Friday @ 11am!",
+    "id": "creative_journey_september",
+    "title": "Creative Journeys",
+    "message": "Register today for our first Creative Journeys Workshop of the season!",
     "dismissButtonText": "Got It"
   },
 
