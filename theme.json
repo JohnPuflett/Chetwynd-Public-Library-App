@@ -60,9 +60,9 @@
 
   "announcementModal": {
     "enabled": true,
-    "id": "Open Mic Oct 2",
-    "title": "The Stack Sessions: Open Mic Night",
-    "message": "Join us for The Stack Sessions: Open Mic Night on Friday Oct 2nd from 7pm to 9pm in the library!!",
+    "id": "Fall Book Sale 20260928",
+    "title": "Cozy up to Autumn - Fall Book Sale",
+    "message": "Our Fall Book Sale begins on Monday, September 28th at 10am!",
     "dismissButtonText": "Got It"
   },
 
@@ -104,7 +104,7 @@
     },
     {
       "_comment": "Between Seasons",
-      "_title": "STEM Programs",
+      "title": "STEM Programs",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplstemprograms"
     },
     {
