@@ -70,10 +70,10 @@
 
   "announcementModal": {
     "enabled": true,
-    "id": "Fall Book Sale 20260928",
-    "title": "Cozy up to Autumn - Fall Book Sale",
-    "message": "Our Fall Book Sale begins on Monday, September 28th at 10am!",
-    "dismissButtonText": "Got It"
+    "id": "Family Fun Night 20261023",
+    "title": "New Family Fun Night!!",
+    "message": "Join our Silly Monster Sock Puppets event on Friday. October 23rd and create some silly sock friends with the whole family!!",
+    "dismissButtonText": "Got IT"
   },
 
   "moreMenuItems": [
