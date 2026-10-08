@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -52,7 +53,10 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import org.json.JSONObject
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.EnumMap
+import java.util.Locale
 import kotlin.concurrent.thread
 
 // --- Data Models ---
@@ -89,7 +93,8 @@ class MainActivity : AppCompatActivity() {
     private var isRestoringState = false
     private var isFormVisible = false
     private var isOffline = false
-    private var isInitialAppLaunch = true // Track initial launch state to prevent flash re-triggering
+    private var isInitialAppLaunch = true
+    private var isSplashDismissing = false
 
     // Graphic overlay URLs from theme.json
     private var currentHeaderImgUrl: String = ""
@@ -140,10 +145,10 @@ class MainActivity : AppCompatActivity() {
     // ==========================================
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 1. Hand off from system splash screen instantly
         installSplashScreen()
-
         super.onCreate(savedInstanceState)
+
+        applyOrientationPolicy()
 
         window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         setContentView(R.layout.activity_main)
@@ -153,18 +158,23 @@ class MainActivity : AppCompatActivity() {
         setupNavigationBar()
         setupWebView()
 
-        // Apply drop shadows to bottom navigation text labels
         applyBottomNavTextShadows()
-
-        // Fetch and apply dynamic remote skinning configuration & check for app updates
         applyRemoteTheme()
 
         askNotificationPermission()
         getFirebaseToken()
         handleBackNavigation()
 
-        // Handle incoming target URL intent passed from external callers or PdfViewerActivity
         handleIncomingIntent(intent)
+    }
+
+    private fun applyOrientationPolicy() {
+        val smallestWidthDp = resources.configuration.smallestScreenWidthDp
+        if (smallestWidthDp < 600) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        } else {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -174,7 +184,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleIncomingIntent(intent: Intent?) {
-        // Check for raw Uri data (from system PDF link tap) or explicit intent string
         val targetUrl = intent?.data?.toString() ?: intent?.getStringExtra("EXTRA_NAVIGATE_URL")
         if (!targetUrl.isNullOrEmpty()) {
             var formattedUrl = targetUrl.trim()
@@ -185,9 +194,10 @@ class MainActivity : AppCompatActivity() {
             Log.d("MAIN_NAV", "Loading URL from intent: $formattedUrl")
             showLoadingState()
 
-            // Post to main handler to ensure webview is fully bound
             Handler(Looper.getMainLooper()).postDelayed({
-                webView.loadUrl(formattedUrl)
+                if (::webView.isInitialized) {
+                    webView.loadUrl(formattedUrl)
+                }
             }, 100)
         }
     }
@@ -202,10 +212,12 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.loading_progress)
         overlay = findViewById(R.id.loading_overlay)
 
-        val params = webView.layoutParams as ConstraintLayout.LayoutParams
-        params.topToBottom = R.id.custom_header
-        params.topToTop = -1
-        webView.layoutParams = params
+        val params = webView.layoutParams as? ConstraintLayout.LayoutParams
+        if (params != null) {
+            params.topToBottom = R.id.custom_header
+            params.topToTop = -1
+            webView.layoutParams = params
+        }
     }
 
     private fun configureHeader() {
@@ -227,7 +239,12 @@ class MainActivity : AppCompatActivity() {
         navBar.itemIconTintList = android.content.res.ColorStateList.valueOf(Color.WHITE)
         navBar.itemTextColor = android.content.res.ColorStateList.valueOf(Color.WHITE)
         navBar.background = null
-        navBar.setBackgroundResource(R.drawable.header_gradient)
+        navBar.setBackgroundResource(R.drawable.rounded_nav_bg)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            navBar.elevation = 20f
+            navBar.translationZ = 12f
+        }
 
         navBar.setOnItemSelectedListener { item ->
             navBar.post { forceUpdateNavLabels() }
@@ -291,15 +308,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLoadingState() {
+        if (isFinishing || isDestroyed) return
+
         val loadingBgImage = findViewById<ImageView>(R.id.loading_bg_image)
         val loadingLogo = findViewById<ImageView>(R.id.loading_logo)
 
         if (!isInitialAppLaunch) {
-            // Standard tab navigation: hide splash graphic and center logo completely
             loadingBgImage?.visibility = View.GONE
             loadingLogo?.visibility = View.GONE
-
-            // Apply a lightweight semi-transparent dark scrim overlay over the webview
             overlay.setBackgroundColor(Color.parseColor("#40000000"))
         }
 
@@ -310,22 +326,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hideLoadingState() {
+        if (isFinishing || isDestroyed) return
+
         if (isInitialAppLaunch) {
-            // Keep layout overlay visible on cold boot, then fade out smoothly
+            if (isSplashDismissing) return
+            isSplashDismissing = true
+
             Handler(Looper.getMainLooper()).postDelayed({
-                isInitialAppLaunch = false
-                overlay.animate()
-                    .alpha(0f)
-                    .setDuration(500)
-                    .withEndAction {
-                        overlay.visibility = View.GONE
-                        overlay.alpha = 1f
-                        progressBar.visibility = View.GONE
-                        navBar.isEnabled = true
-                    }
-            }, 5000)
+                if (!isFinishing && !isDestroyed) {
+                    overlay.animate()
+                        .alpha(0f)
+                        .setDuration(400)
+                        .withEndAction {
+                            overlay.visibility = View.GONE
+                            overlay.alpha = 1f
+                            progressBar.visibility = View.GONE
+                            navBar.isEnabled = true
+                            isInitialAppLaunch = false
+                            isSplashDismissing = false
+                        }
+                        .start()
+                }
+            }, 2500)
         } else {
-            // Immediate hide for standard tab navigation
             overlay.visibility = View.GONE
             progressBar.visibility = View.GONE
             navBar.isEnabled = true
@@ -365,7 +388,6 @@ class MainActivity : AppCompatActivity() {
                     var freshJsonStr = connection.inputStream.bufferedReader().use { it.readText() }
                     connection.disconnect()
 
-                    // Strip UTF-8 Byte Order Mark if present
                     if (freshJsonStr.startsWith("\uFEFF")) {
                         freshJsonStr = freshJsonStr.substring(1)
                     }
@@ -402,8 +424,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderThemeJson(json: JSONObject) {
-        // 0. Load Dynamic Splash / Loading Background Graphic & Hide Center Logo on Success
-        val splashBgUrl = json.optString("splashBgUrl", "")
+        var activeJson = json
+
+        // --- Date-Based Scheduled Theme Engine ---
+        val scheduledThemes = json.optJSONArray("scheduledThemes")
+        if (scheduledThemes != null && scheduledThemes.length() > 0) {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val currentDateStr = dateFormat.format(Date())
+
+            for (i in 0 until scheduledThemes.length()) {
+                val themeObj = scheduledThemes.getJSONObject(i)
+                val startDate = themeObj.optString("startDate", "")
+                val endDate = themeObj.optString("endDate", "")
+
+                if (startDate.isNotEmpty() && endDate.isNotEmpty()) {
+                    // Check if today falls inclusively between startDate and endDate
+                    if (currentDateStr >= startDate && currentDateStr <= endDate) {
+                        Log.d("THEME_ENGINE", "Applying scheduled theme: ${themeObj.optString("name")}")
+
+                        // Dynamically merge scheduled theme properties over root defaults
+                        activeJson = JSONObject(json.toString()).apply {
+                            val keys = themeObj.keys()
+                            while (keys.hasNext()) {
+                                val key = keys.next()
+                                put(key, themeObj.get(key))
+                            }
+                        }
+                        break
+                    }
+                }
+            }
+        }
+
+        // --- Render UI using activeJson ---
+        val splashBgUrl = activeJson.optString("splashBgUrl", "")
         val loadingBgImage = findViewById<ImageView>(R.id.loading_bg_image)
         val loadingLogo = findViewById<ImageView>(R.id.loading_logo)
 
@@ -425,18 +479,16 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onLoadFailed(errorDrawable: Drawable?) {
                         super.onLoadFailed(errorDrawable)
-                        // Keep logo visible if remote image fails
                         loadingLogo?.visibility = View.VISIBLE
                     }
                 })
         }
 
-        // 1. Header Text and Logos Parsing
-        headerText = json.optString("headerText", "Chetwynd Public Library")
-        logoCplWebUrl = json.optString("logoCplWebUrl", "")
-        logoEventsUrl = json.optString("logoEventsUrl", "")
-        logoCplWebLink = json.optString("logoCplWebLink", "https://chetwynd.bc.libraries.coop/")
-        logoEventsLink = json.optString("logoEventsLink", "https://www.chetwyndeventscalendar.com/")
+        headerText = activeJson.optString("headerText", "Chetwynd Public Library")
+        logoCplWebUrl = activeJson.optString("logoCplWebUrl", "")
+        logoEventsUrl = activeJson.optString("logoEventsUrl", "")
+        logoCplWebLink = activeJson.optString("logoCplWebLink", "https://chetwynd.bc.libraries.coop/")
+        logoEventsLink = activeJson.optString("logoEventsLink", "https://www.chetwyndeventscalendar.com/")
 
         val headerTextView = findViewById<TextView>(R.id.header_title)
         headerTextView?.text = headerText
@@ -455,10 +507,9 @@ class MainActivity : AppCompatActivity() {
                 .into(logoEvents)
         }
 
-        // 2. Header Background Banner / Color Styling
         val headerView = findViewById<View>(R.id.custom_header)
-        currentHeaderImgUrl = json.optString("headerImageUrl", "")
-        val headerHex = json.optString("headerBgColor", json.optString("headerColor", ""))
+        currentHeaderImgUrl = activeJson.optString("headerImageUrl", "")
+        val headerHex = activeJson.optString("headerBgColor", activeJson.optString("headerColor", ""))
 
         if (currentHeaderImgUrl.isNotEmpty()) {
             Glide.with(this@MainActivity)
@@ -478,9 +529,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 3. Bottom Navigation Banner / Color Styling
-        currentNavImgUrl = json.optString("navImageUrl", "")
-        val navHex = json.optString("navBgColor", json.optString("navColor", ""))
+        currentNavImgUrl = activeJson.optString("navImageUrl", "")
+        val navHex = activeJson.optString("navBgColor", activeJson.optString("navColor", ""))
 
         if (currentNavImgUrl.isNotEmpty()) {
             Glide.with(this@MainActivity)
@@ -503,12 +553,11 @@ class MainActivity : AppCompatActivity() {
                     navBar.setBackgroundColor(color)
                 }
             } else {
-                navBar.setBackgroundResource(R.drawable.header_gradient)
+                navBar.setBackgroundResource(R.drawable.rounded_nav_bg)
             }
         }
 
-        // 4. Parse Form Detection Domains
-        val domainArray = json.optJSONArray("formDetectionDomains")
+        val domainArray = activeJson.optJSONArray("formDetectionDomains")
         if (domainArray != null && domainArray.length() > 0) {
             val domains = mutableListOf<String>()
             for (i in 0 until domainArray.length()) {
@@ -522,8 +571,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 5. Parse Dynamic More Menu Items
-        val menuArray = json.optJSONArray("moreMenuItems")
+        val menuArray = activeJson.optJSONArray("moreMenuItems")
         if (menuArray != null && menuArray.length() > 0) {
             val items = mutableListOf<MenuItemData>()
             for (i in 0 until menuArray.length()) {
@@ -537,13 +585,11 @@ class MainActivity : AppCompatActivity() {
             dynamicMenuItems = items
         }
 
-        // 6. Check Remote Version vs Installed App Version
-        checkForAppUpdates(json)
+        checkForAppUpdates(activeJson)
 
-        // 7. Check for Dismissible Announcement Popup
         Handler(Looper.getMainLooper()).postDelayed({
-            checkAndShowAnnouncementModal(json)
-        }, 5600)
+            checkAndShowAnnouncementModal(activeJson)
+        }, 3000)
     }
 
     // ==========================================
@@ -551,6 +597,8 @@ class MainActivity : AppCompatActivity() {
     // ==========================================
 
     private fun checkAndShowAnnouncementModal(json: JSONObject) {
+        if (isFinishing || isDestroyed) return
+
         val modalObj = json.optJSONObject("announcementModal") ?: return
         val enabled = modalObj.optBoolean("enabled", false)
         if (!enabled) return
@@ -558,7 +606,6 @@ class MainActivity : AppCompatActivity() {
         val announcementId = modalObj.optString("id", "")
         if (announcementId.isEmpty()) return
 
-        // Check if user previously dismissed this specific announcement ID
         val prefs = getSharedPreferences("CPL_ANNOUNCEMENTS", Context.MODE_PRIVATE)
         val isDismissed = prefs.getBoolean("dismissed_$announcementId", false)
         if (isDismissed) return
@@ -568,18 +615,19 @@ class MainActivity : AppCompatActivity() {
         val dismissText = modalObj.optString("dismissButtonText", "Got It")
 
         runOnUiThread {
-            val builder = android.app.AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setCancelable(true)
-                .setPositiveButton(dismissText) { dialog, _ ->
-                    // Save preference so user isn't shown this announcement again
-                    prefs.edit().putBoolean("dismissed_$announcementId", true).apply()
-                    dialog.dismiss()
-                }
+            if (!isFinishing && !isDestroyed) {
+                val builder = android.app.AlertDialog.Builder(this)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setCancelable(true)
+                    .setPositiveButton(dismissText) { dialog, _ ->
+                        prefs.edit().putBoolean("dismissed_$announcementId", true).apply()
+                        dialog.dismiss()
+                    }
 
-            val dialog = builder.create()
-            dialog.show()
+                val dialog = builder.create()
+                dialog.show()
+            }
         }
     }
 
@@ -617,6 +665,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showUpdateDialog(updateUrl: String, forceUpdate: Boolean) {
+        if (isFinishing || isDestroyed) return
+
         val builder = android.app.AlertDialog.Builder(this)
             .setTitle("Update Available")
             .setMessage("A new version of the Chetwynd Public Library app is available. Please update to access the latest features and fixes.")
@@ -643,7 +693,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateHeaderVisibility(url: String?) {
         val header = findViewById<View>(R.id.custom_header) ?: return
-        val params = webView.layoutParams as ConstraintLayout.LayoutParams
+        val params = webView.layoutParams as? ConstraintLayout.LayoutParams ?: return
 
         val isProgramGuide = url != null && (url.contains(guidePath) || url.endsWith(".pdf"))
 
@@ -656,7 +706,7 @@ class MainActivity : AppCompatActivity() {
                 statusBarHeight = resources.getDimensionPixelSize(resourceId)
             }
             if (statusBarHeight == 0) {
-                statusBarHeight = (resources.displayMetrics.density * 24).toInt() // Fallback
+                statusBarHeight = (resources.displayMetrics.density * 24).toInt()
             }
             params.topMargin = statusBarHeight
         } else {
@@ -827,6 +877,13 @@ class MainActivity : AppCompatActivity() {
         }, "FormDetector")
 
         webView.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                super.onProgressChanged(view, newProgress)
+                if (newProgress == 100 && isInitialAppLaunch) {
+                    hideLoadingState()
+                }
+            }
+
             override fun onShowFileChooser(
                 webView: WebView,
                 filePathCallback: ValueCallback<Array<Uri>>,
@@ -846,6 +903,7 @@ class MainActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
+                Log.d("WEB_DIAGNOSTIC", "Navigating to URL: $url")
                 isFormVisible = false
 
                 if (isOffline) {
@@ -863,89 +921,126 @@ class MainActivity : AppCompatActivity() {
             ) {
                 super.onReceivedError(view, request, error)
 
-                if (request?.isForMainFrame == true) {
-                    hideLoadingState()
+                val reqUrl = request?.url?.toString() ?: "unknown"
+                val isMainFrame = request?.isForMainFrame == true
+                val errorCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) error?.errorCode else null
+                val errorDesc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) error?.description else "N/A"
 
-                    isOffline = true
-                    navBar.alpha = 0.4f
+                // Log all errors to Logcat for real-time diagnostics
+                Log.w(
+                    "WEB_DIAGNOSTIC",
+                    "Web Error -> MainFrame: $isMainFrame | Code: $errorCode | Desc: $errorDesc | URL: $reqUrl"
+                )
 
-                    val failedUrl = request.url.toString()
-                    val offlineHtml = """
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <style>
-                                body {
-                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                                    background-color: #F4F6F9;
-                                    color: #333333;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    height: 100vh;
-                                    margin: 0;
-                                    padding: 20px;
-                                    box-sizing: border-box;
-                                }
-                                .card {
-                                    background: #ffffff;
-                                    border-radius: 16px;
-                                    padding: 32px 24px;
-                                    text-align: center;
-                                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-                                    max-width: 320px;
-                                    width: 100%;
-                                }
-                                .icon {
-                                    font-size: 52px;
-                                    margin-bottom: 16px;
-                                }
-                                h2 {
-                                    color: #1B365D;
-                                    margin: 0 0 12px 0;
-                                    font-size: 20px;
-                                }
-                                p {
-                                    color: #666666;
-                                    font-size: 14px;
-                                    line-height: 1.5;
-                                    margin: 0 0 24px 0;
-                                }
-                                .btn {
-                                    background-color: #1B365D;
-                                    color: #ffffff;
-                                    border: none;
-                                    padding: 12px 28px;
-                                    font-size: 15px;
-                                    font-weight: 600;
-                                    border-radius: 24px;
-                                    cursor: pointer;
-                                    width: 100%;
-                                    box-sizing: border-box;
-                                }
-                                .btn:active {
-                                    opacity: 0.85;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="card">
-                                <div class="icon">📡</div>
-                                <h2>No Internet Connection</h2>
-                                <p>Please check your connection or turn off Airplane Mode to access online library features.</p>
-                                <button class="btn" onclick="window.location.href='$failedUrl'">Try Again</button>
-                            </div>
-                        </body>
-                        </html>
-                    """.trimIndent()
+                // Only evaluate errors belonging to primary URL navigation
+                if (isMainFrame) {
+                    // Ignore harmless cancelled navigation (ERROR_CANCELLED = -3)
+                    if (errorCode == -3) {
+                        Log.i("WEB_DIAGNOSTIC", "Ignored harmless redirect/cancel for: $reqUrl")
+                        return
+                    }
 
-                    view?.loadDataWithBaseURL(null, offlineHtml, "text/html", "UTF-8", null)
+                    // Strict check for true connectivity or host unreachable failures using explicit integers:
+                    // -2: ERROR_HOST_LOOKUP
+                    // -6: ERROR_CONNECT
+                    // -8: ERROR_TIMEOUT
+                    // -11: ERROR_FAILED_SSL_HANDSHAKE
+                    // -14: ERROR_DISCONNECTED
+                    val isFatalConnectivityError = when (errorCode) {
+                        -2, -6, -8, -11, -14 -> true
+                        else -> false
+                    }
+
+                    if (isFatalConnectivityError) {
+                        Log.e("WEB_DIAGNOSTIC", "FATAL CONNECTIVITY ERROR ($errorCode) on main frame: $reqUrl")
+                        hideLoadingState()
+
+                        isOffline = true
+                        navBar.alpha = 0.4f
+
+                        val failedUrl = request?.url?.toString() ?: rootUrl
+                        val offlineHtml = """
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <style>
+                                    body {
+                                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                        background-color: #F4F6F9;
+                                        color: #333333;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        height: 100vh;
+                                        margin: 0;
+                                        padding: 20px;
+                                        box-sizing: border-box;
+                                    }
+                                    .card {
+                                        background: #ffffff;
+                                        border-radius: 16px;
+                                        padding: 32px 24px;
+                                        text-align: center;
+                                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+                                        max-width: 320px;
+                                        width: 100%;
+                                    }
+                                    .icon {
+                                        font-size: 52px;
+                                        margin-bottom: 16px;
+                                    }
+                                    h2 {
+                                        color: #1B365D;
+                                        margin: 0 0 12px 0;
+                                        font-size: 20px;
+                                    }
+                                    p {
+                                        color: #666666;
+                                        font-size: 14px;
+                                        line-height: 1.5;
+                                        margin: 0 0 24px 0;
+                                    }
+                                    .btn {
+                                        background-color: #1B365D;
+                                        color: #ffffff;
+                                        border: none;
+                                        padding: 12px 28px;
+                                        font-size: 15px;
+                                        font-weight: 600;
+                                        border-radius: 24px;
+                                        cursor: pointer;
+                                        width: 100%;
+                                        box-sizing: border-box;
+                                    }
+                                    .btn:active {
+                                        opacity: 0.85;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="card">
+                                    <div class="icon">📡</div>
+                                    <h2>No Internet Connection</h2>
+                                    <p>Please check your connection or turn off Airplane Mode to access online library features.</p>
+                                    <button class="btn" onclick="window.location.href='$failedUrl'">Try Again</button>
+                                </div>
+                            </body>
+                            </html>
+                        """.trimIndent()
+
+                        view?.loadDataWithBaseURL(null, offlineHtml, "text/html", "UTF-8", null)
+                    } else {
+                        Log.i("WEB_DIAGNOSTIC", "Non-fatal error ($errorCode) on main frame allowed to pass: $reqUrl")
+                    }
+                } else {
+                    Log.i("WEB_DIAGNOSTIC", "Sub-resource load failed ($errorCode) but ignored for UI state: $reqUrl")
                 }
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                Log.d("WEB_DIAGNOSTIC", "Finished loading URL: $url")
                 hideLoadingState()
                 updateHeaderVisibility(url)
 
@@ -1013,7 +1108,6 @@ class MainActivity : AppCompatActivity() {
                     return true
                 }
 
-                // Allow web pages & forms to process directly inside WebView
                 return false
             }
         }
@@ -1025,10 +1119,11 @@ class MainActivity : AppCompatActivity() {
     // ==========================================
 
     private fun showLibraryCardsDialog() {
+        if (isFinishing || isDestroyed) return
+
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_library_card, null)
 
-        // Set a clean, neutral light background
         view.setBackgroundColor(Color.parseColor("#F8F9FA"))
 
         val cardContainer = view.findViewById<LinearLayout>(R.id.card_list_container)
@@ -1374,7 +1469,6 @@ class MainActivity : AppCompatActivity() {
 
                 if (isHome) {
                     if (doubleBackToExitPressedOnce) {
-                        // Fully close activity and remove task from recent apps list
                         finishAndRemoveTask()
                         return
                     }

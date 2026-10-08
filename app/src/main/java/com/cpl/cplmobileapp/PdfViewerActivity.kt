@@ -1,7 +1,10 @@
 package com.cpl.cplmobileapp
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.pdf.PdfRenderer
@@ -29,6 +32,7 @@ import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
+import kotlin.math.ceil
 
 class PdfViewerActivity : AppCompatActivity() {
 
@@ -42,6 +46,9 @@ class PdfViewerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Lock smartphones to portrait; allow tablets (sw600dp+) to auto-rotate
+        applyOrientationPolicy()
 
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = android.graphics.Color.parseColor("#121212")
@@ -83,10 +90,29 @@ class PdfViewerActivity : AppCompatActivity() {
             }
         }
 
-        // Clean Material Depth transition
         viewPager.setPageTransformer(DepthPageTransformer())
 
         loadAndCachePdf("https://chetwynd.bc.libraries.coop/files/2026/05/Program-Guide_merged.pdf")
+    }
+
+    private fun applyOrientationPolicy() {
+        val smallestWidthDp = resources.configuration.smallestScreenWidthDp
+        if (smallestWidthDp < 600) {
+            // Smartphone: Lock exclusively to portrait
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        } else {
+            // Tablet (7" or larger): Allow full sensor auto-rotation for 2-page spreads
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        pdfRenderer?.let { renderer ->
+            val adapter = PdfPageAdapter(renderer, viewPager, newConfig.orientation)
+            viewPager.adapter = adapter
+            updatePageIndicator(viewPager.currentItem, renderer.pageCount, newConfig.orientation)
+        }
     }
 
     private fun loadAndCachePdf(urlString: String) {
@@ -147,20 +173,36 @@ class PdfViewerActivity : AppCompatActivity() {
 
             pdfRenderer?.let { renderer ->
                 progressBar.visibility = View.GONE
-                val adapter = PdfPageAdapter(renderer, viewPager)
+                val orientation = resources.configuration.orientation
+                val adapter = PdfPageAdapter(renderer, viewPager, orientation)
                 viewPager.adapter = adapter
 
-                pageIndicator.text = "Page ${viewPager.currentItem + 1} of ${renderer.pageCount}"
+                updatePageIndicator(viewPager.currentItem, renderer.pageCount, orientation)
 
                 viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
-                        pageIndicator.text = "Page ${position + 1} of ${renderer.pageCount}"
+                        val currentOrientation = resources.configuration.orientation
+                        updatePageIndicator(position, renderer.pageCount, currentOrientation)
                     }
                 })
             }
         } catch (e: Exception) {
             Log.e("PDF_VIEWER", "PdfRenderer init error", e)
+        }
+    }
+
+    private fun updatePageIndicator(position: Int, totalPages: Int, orientation: Int) {
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            val leftPage = (position * 2) + 1
+            val rightPage = leftPage + 1
+            if (rightPage <= totalPages) {
+                pageIndicator.text = "Pages $leftPage-$rightPage of $totalPages"
+            } else {
+                pageIndicator.text = "Page $leftPage of $totalPages"
+            }
+        } else {
+            pageIndicator.text = "Page ${position + 1} of $totalPages"
         }
     }
 
@@ -176,7 +218,8 @@ class PdfViewerActivity : AppCompatActivity() {
 
     class PdfPageAdapter(
         private val renderer: PdfRenderer,
-        private val viewPager: ViewPager2
+        private val viewPager: ViewPager2,
+        private val orientation: Int
     ) : RecyclerView.Adapter<PdfPageAdapter.PageViewHolder>() {
 
         class PageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -188,7 +231,7 @@ class PdfViewerActivity : AppCompatActivity() {
             return PageViewHolder(view)
         }
 
-        @SuppressLint("ClickableViewAccessibility")
+        @SuppressLint("ClickableViewAccessibility", "RecyclerView")
         override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
             val imageView = holder.imgSurface
             imageView.scaleType = ImageView.ScaleType.FIT_CENTER
@@ -205,7 +248,6 @@ class PdfViewerActivity : AppCompatActivity() {
                         imageView.scaleType = ImageView.ScaleType.MATRIX
                         matrix.set(imageView.imageMatrix)
                     }
-                    // Immediately lock ViewPager swipe so pinching is never interrupted
                     viewPager.isUserInputEnabled = false
                     return true
                 }
@@ -243,7 +285,6 @@ class PdfViewerActivity : AppCompatActivity() {
             })
 
             imageView.setOnTouchListener { _, event ->
-                // Disallow ViewPager touch interception immediately when two fingers touch down
                 if (event.pointerCount >= 2) {
                     viewPager.isUserInputEnabled = false
                     imageView.parent?.requestDisallowInterceptTouchEvent(true)
@@ -281,25 +322,69 @@ class PdfViewerActivity : AppCompatActivity() {
 
             synchronized(renderer) {
                 try {
-                    val page = renderer.openPage(position)
-
                     val displayMetrics = holder.itemView.resources.displayMetrics
-                    val targetWidth = displayMetrics.widthPixels * 2
-                    val aspectRatio = page.height.toFloat() / page.width.toFloat()
-                    val targetHeight = (targetWidth * aspectRatio).toInt()
 
-                    val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
-                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        // --- DUAL PAGE RENDER (LANDSCAPE TABLETS) ---
+                        val leftPageIndex = position * 2
+                        val rightPageIndex = leftPageIndex + 1
 
-                    imageView.setImageBitmap(bitmap)
-                    page.close()
+                        val pageLeft = renderer.openPage(leftPageIndex)
+                        val pageRight = if (rightPageIndex < renderer.pageCount) renderer.openPage(rightPageIndex) else null
+
+                        val singlePageWidth = 1400
+                        val aspectRatio = pageLeft.height.toFloat() / pageLeft.width.toFloat()
+                        val canvasHeight = (singlePageWidth * aspectRatio).toInt().coerceAtMost(2500)
+                        val canvasWidth = singlePageWidth * 2
+
+                        val combinedBitmap = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888)
+                        val canvas = Canvas(combinedBitmap)
+
+                        val leftBmp = Bitmap.createBitmap(singlePageWidth, canvasHeight, Bitmap.Config.ARGB_8888)
+                        pageLeft.render(leftBmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                        canvas.drawBitmap(leftBmp, 0f, 0f, null)
+                        leftBmp.recycle()
+                        pageLeft.close()
+
+                        if (pageRight != null) {
+                            val rightBmp = Bitmap.createBitmap(singlePageWidth, canvasHeight, Bitmap.Config.ARGB_8888)
+                            pageRight.render(rightBmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                            canvas.drawBitmap(rightBmp, singlePageWidth.toFloat(), 0f, null)
+                            rightBmp.recycle()
+                            pageRight.close()
+                        }
+
+                        imageView.setImageBitmap(combinedBitmap)
+
+                    } else {
+                        // --- SINGLE PAGE RENDER (PORTRAIT PHONES & TABLETS) ---
+                        val page = renderer.openPage(position)
+
+                        val targetWidth = displayMetrics.widthPixels.coerceAtMost(2000)
+                        val aspectRatio = page.height.toFloat() / page.width.toFloat()
+                        val targetHeight = (targetWidth * aspectRatio).toInt().coerceAtMost(3200)
+
+                        if (targetWidth > 0 && targetHeight > 0) {
+                            val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
+                            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                            imageView.setImageBitmap(bitmap)
+                        }
+
+                        page.close()
+                    }
                 } catch (e: Exception) {
-                    Log.e("PDF_ADAPTER", "Error rendering page $position", e)
+                    Log.e("PDF_ADAPTER", "Error rendering spread at position $position", e)
                 }
             }
         }
 
-        override fun getItemCount(): Int = renderer.pageCount
+        override fun getItemCount(): Int {
+            return if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                ceil(renderer.pageCount / 2.0).toInt()
+            } else {
+                renderer.pageCount
+            }
+        }
     }
 
     class DepthPageTransformer : ViewPager2.PageTransformer {
