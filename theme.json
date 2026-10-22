@@ -63,32 +63,32 @@
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplchildrensprograms"
     },
     {
-      "_comment": "Still Active",
+      "_comment": "Active",
       "title": "Family Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplfamilyevents"
     },
     {
-      "_comment": "Still Active",
-      "title": "Teen Events",
+      "_comment": "Inactive",
+      "_title": "Teen Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplteenevents"
     },
     {
-      "_comment": "Still Active",
+      "_comment": "Active",
       "_title": "Pre-Teen Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplpreteenevents"
     },
     {
-      "_comment": "Still Active",
+      "_comment": "Inactive",
       "_title": "Creative Journeys",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplcreativejourneys"
     },
     {
-      "_comment": "Between Seasons",
+      "_comment": "Inactive",
       "title": "STEM Programs",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplstemprograms"
     },
     {
-      "_comment": "Still Active",
+      "_comment": "Active",
       "title": "Print Job Upload",
       "url": "https://www.chetwyndeventscalendar.com/printing"
     }
