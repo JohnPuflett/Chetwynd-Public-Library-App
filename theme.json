@@ -42,10 +42,10 @@
 
   "announcementModal": {
     "enabled": true,
-    "id": "BOO! Bash 20261030",
-    "title": "Join us for our 2026 BOO! BASH",
-    "message": "Silly, not-too-spooky fun for ages 0-5 on Fri, Oct 30! Pick 11 AM or 1 PM session. Costumes, snacks & games.",
-    "dismissButtonText": "Got IT"
+    "id": Halloween at the library 20261031",
+    "title": "Join us for tricks, treats, and activities!",
+    "message": "We can't wait to welcome your little ghouls and goblins for a wonderfully spooky and joyful afternoon! Saturday October 31st from 12pm to 4pm!",
+    "dismissButtonText": "Got IT!!"
   },
 
   "moreMenuItems": [
