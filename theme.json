@@ -66,12 +66,12 @@
     },
     {
       "_comment": "Active",
-      "title": "Family Events",
+      "_title": "Family Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplfamilyevents"
     },
     {
-      "_comment": "Inactive",
-      "_title": "Teen Events",
+      "_comment": "active",
+      "title": "Teen Events",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplteenevents"
     },
     {
@@ -86,7 +86,7 @@
     },
     {
       "_comment": "Active",
-      "title": "STEM Programs",
+      "_title": "STEM Programs",
       "url": "https://www.chetwyndeventscalendar.com/cplapppage/cplstemprograms"
     },
     {
